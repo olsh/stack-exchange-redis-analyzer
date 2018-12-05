@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="TestData\AwaitStringGetAsyncTestData.cs" />
+    <Compile Remove="TestData\ContinueWithCallbackTestData.cs" />
+    <Compile Remove="TestData\ResultStringGetAsyncTestData.cs" />
+    <Compile Remove="TestData\TaskWaitAllStringGetAsyncTestData.cs" />
+    <Compile Remove="TestData\WaitStringGetAsyncTestData.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="TestData\AwaitStringGetAsyncTestData.cs" />
+    <EmbeddedResource Include="TestData\ContinueWithCallbackTestData.cs" />
+    <EmbeddedResource Include="TestData\TaskWaitAllStringGetAsyncTestData.cs" />
+    <EmbeddedResource Include="TestData\WaitStringGetAsyncTestData.cs" />
+    <EmbeddedResource Include="TestData\ResultStringGetAsyncTestData.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.msbuild" Version="2.4.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.6.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.8.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.0.519" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StackExchange.Redis.Analyzer\StackExchange.Redis.Analyzer.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -328,3 +328,12 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+# SonarQube
+.sonarqube
+
+# Cake
+tools
+
+# Coverlet
+coverage.opencover.xml
