@@ -40,6 +40,7 @@ Task("Build")
     var settings = new MSBuildSettings
     {
         Configuration = buildConfiguration,
+        ToolVersion = MSBuildToolVersion.VS2017,
         MSBuildPlatform = MSBuildPlatform.x86,
         Restore = true,
         Verbosity = Verbosity.Minimal
