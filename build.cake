@@ -17,7 +17,6 @@ var vsixProjectFolder = string.Format("./src/{0}/StackExchange.Redis.Analyzer.Vs
 var testProjectFolder = string.Format("./src/{0}/{1}/", projectName, testProjectName);
 var testProjectFile = string.Format("{0}{1}.csproj", testProjectFolder, testProjectName);
 
-var nugetPackageFile = string.Format("{0}bin/{1}/{2}.nuget", projectFolder, buildConfiguration, projectName);
 var vsixFile = string.Format("{0}bin/{1}/{2}.vsix", vsixProjectFolder, buildConfiguration, projectName);
 
 var projectFile = string.Format("{0}{1}.csproj", projectFolder, projectName);
@@ -83,7 +82,7 @@ Task("CreateArtifact")
   .WithCriteria(BuildSystem.AppVeyor.IsRunningOnAppVeyor)
   .Does(() =>
 {
-    BuildSystem.AppVeyor.UploadArtifact(nugetPackageFile);
+    BuildSystem.AppVeyor.UploadArtifact(nugetPackage);
     BuildSystem.AppVeyor.UploadArtifact(vsixFile);
 });
 
