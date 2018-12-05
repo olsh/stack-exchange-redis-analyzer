@@ -17,13 +17,11 @@ var vsixProjectFolder = string.Format("./src/{0}/StackExchange.Redis.Analyzer.Vs
 var testProjectFolder = string.Format("./src/{0}/{1}/", projectName, testProjectName);
 var testProjectFile = string.Format("{0}{1}.csproj", testProjectFolder, testProjectName);
 
-var nugetPackageFile = string.Format("{0}bin/{1}/{2}.nuget", projectFolder, buildConfiguration, projectName);
 var vsixFile = string.Format("{0}bin/{1}/{2}.vsix", vsixProjectFolder, buildConfiguration, projectName);
+var nugetPackage = string.Format("{0}.{1}.nupkg", projectName, extensionsVersion);
 
 var projectFile = string.Format("{0}{1}.csproj", projectFolder, projectName);
 var extensionsVersion = XmlPeek(projectFile, "Project/PropertyGroup/Version/text()");
-
-var nugetPackage = string.Format("{0}/bin/{1}/{2}.{3}.nupkg", projectFolder, buildConfiguration, projectName, extensionsVersion);
 
 Task("UpdateBuildVersion")
   .WithCriteria(BuildSystem.AppVeyor.IsRunningOnAppVeyor)
@@ -78,12 +76,25 @@ Task("CodeCoverage")
     Codecov(string.Format("{0}coverage.opencover.xml", testProjectFolder), EnvironmentVariable("codecov:token"));
 });
 
-Task("CreateArtifact")
+Task("NugetPack")
   .IsDependentOn("Build")
+  .Does(() =>
+{
+     var settings = new DotNetCorePackSettings
+     {
+         Configuration = buildConfiguration,
+         OutputDirectory = "."
+     };
+
+     DotNetCorePack(projectFolder, settings);
+});
+
+Task("CreateArtifact")
+  .IsDependentOn("NugetPack")
   .WithCriteria(BuildSystem.AppVeyor.IsRunningOnAppVeyor)
   .Does(() =>
 {
-    BuildSystem.AppVeyor.UploadArtifact(nugetPackageFile);
+    BuildSystem.AppVeyor.UploadArtifact(nugetPackage);
     BuildSystem.AppVeyor.UploadArtifact(vsixFile);
 });
 
@@ -113,7 +124,8 @@ Task("Sonar")
   .IsDependentOn("SonarEnd");
 
 Task("Default")
-    .IsDependentOn("Test");
+    .IsDependentOn("Test")
+    .IsDependentOn("NugetPack");
 
 Task("CI")
     .IsDependentOn("UpdateBuildVersion")
