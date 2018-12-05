@@ -5,7 +5,6 @@
         <DisplayName>StackExchange.Redis.Analyzer</DisplayName>
         <Description xml:space="preserve">Roslyn-based analyzer for StackExchange.Redis library</Description>
         <MoreInfo>https://github.com/olsh/stack-exchange-redis-analyzer</MoreInfo>
-        <License>https://github.com/olsh/stack-exchange-redis-analyzer/blob/master/LICENSE</License>
         <ReleaseNotes>https://github.com/olsh/stack-exchange-redis-analyzer/releases</ReleaseNotes>
         <Tags>redis analyzer roslyn stackexchange</Tags>
     </Metadata>
