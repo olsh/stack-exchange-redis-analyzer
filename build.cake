@@ -22,7 +22,10 @@ var vsixFile = string.Format("{0}bin/{1}/{2}.vsix", vsixProjectFolder, buildConf
 var projectFile = string.Format("{0}{1}.csproj", projectFolder, projectName);
 var extensionsVersion = XmlPeek(projectFile, "Project/PropertyGroup/Version/text()");
 
-var nugetPackage = string.Format("{0}/bin/{1}/{2}.{3}.nupkg", projectFolder, buildConfiguration, projectName, extensionsVersion);
+var nugetPackage = string.Format("{0}bin/{1}/{2}.{3}.nupkg", projectFolder, buildConfiguration, projectName, extensionsVersion);
+
+Information(nugetPackage);
+Information(vsixFile);
 
 Task("UpdateBuildVersion")
   .WithCriteria(BuildSystem.AppVeyor.IsRunningOnAppVeyor)
