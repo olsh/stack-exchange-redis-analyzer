@@ -41,7 +41,8 @@ Task("Build")
     {
         Configuration = buildConfiguration,
         MSBuildPlatform = MSBuildPlatform.x86,
-        Restore = true
+        Restore = true,
+        Verbosity = Verbosity.Minimal
     };
 
     MSBuild(solutionFile, settings);
