@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <PackageId>StackExchange.Redis.Analyzer</PackageId>
-    <Authors>olsh</Authors>
+    <Authors>Oleg Shevchenko</Authors>
     <PackageLicenseUrl>https://github.com/olsh/stack-exchange-redis-analyzer/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/olsh/stack-exchange-redis-analyzer</PackageProjectUrl>
     <PackageIconUrl></PackageIconUrl>

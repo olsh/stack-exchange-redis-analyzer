@@ -5,3 +5,9 @@
 [![NuGet](https://img.shields.io/nuget/v/StackExchange.Redis.Analyzer.svg)](https://www.nuget.org/packages/StackExchange.Redis.Analyzer/)
 
 Roslyn-based analyzer for StackExchange.Redis library
+
+## SER001
+
+Async methods on ITransaction type shouldn't be blocked
+
+![SER001](https://github.com/olsh/stack-exchange-redis-analyzer/raw/master/images/SER001.png)
