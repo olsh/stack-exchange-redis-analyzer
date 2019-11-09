@@ -11,15 +11,13 @@
     <Authors>Oleg Shevchenko</Authors>
     <PackageLicenseUrl>https://github.com/olsh/stack-exchange-redis-analyzer/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/olsh/stack-exchange-redis-analyzer</PackageProjectUrl>
-    <PackageIconUrl></PackageIconUrl>
     <RepositoryUrl>https://github.com/olsh/stack-exchange-redis-analyzer</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Description>StackExchange.Redis.Analyzer</Description>
-    <PackageReleaseNotes>Roslyn-based analyzer for StackExchange.Redis library</PackageReleaseNotes>
-    <Copyright></Copyright>
-    <PackageTags>StackExchange.Redis.Analyzer, analyzers</PackageTags>
+    <Description>Roslyn-based analyzer for StackExchange.Redis library</Description>
+    <PackageReleaseNotes>https://github.com/olsh/stack-exchange-redis-analyzer/releases</PackageReleaseNotes>
+    <PackageTags>stackexchange, redis, analyzers</PackageTags>
     <NoPackageAnalysis>true</NoPackageAnalysis>
-    <Version>0.0.2</Version>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

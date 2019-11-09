@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -9,6 +11,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 
 using StackExchange.Redis;
+// ReSharper disable All
 
 namespace TestHelper
 {
@@ -38,8 +41,15 @@ namespace TestHelper
         private static readonly MetadataReference SystemCoreReference =
             MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
 
+        private static readonly MetadataReference SystemIoReference =
+            MetadataReference.CreateFromFile(typeof(TextWriter).Assembly.Location);
+
         private static readonly MetadataReference StackExchangeRedisReference =
             MetadataReference.CreateFromFile(typeof(IDatabase).Assembly.Location);
+
+        private static readonly MetadataReference NetStandard = MetadataReference.CreateFromFile(Assembly.Load("netstandard, Version=2.0.0.0").Location);
+
+        private static readonly MetadataReference SystemRuntimeReference = MetadataReference.CreateFromFile(Assembly.Load("System.Runtime, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a").Location);
 
         /// <summary>
         /// Create a Document from a string through creating a project that contains it.
@@ -124,6 +134,9 @@ namespace TestHelper
                     language)
                 .AddMetadataReference(projectId, CorlibReference)
                 .AddMetadataReference(projectId, SystemCoreReference)
+                .AddMetadataReference(projectId, NetStandard)
+                .AddMetadataReference(projectId, SystemIoReference)
+                .AddMetadataReference(projectId, SystemRuntimeReference)
                 .AddMetadataReference(projectId, CSharpSymbolsReference)
                 .AddMetadataReference(projectId, StackExchangeRedisReference)
                 .AddMetadataReference(projectId, CodeAnalysisReference);

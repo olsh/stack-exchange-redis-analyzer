@@ -1,5 +1,7 @@
-using Microsoft.CodeAnalysis;
 using System;
+
+using Microsoft.CodeAnalysis;
+// ReSharper disable All
 
 namespace TestHelper
 {

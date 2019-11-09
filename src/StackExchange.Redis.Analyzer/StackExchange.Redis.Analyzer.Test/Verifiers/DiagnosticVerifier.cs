@@ -1,10 +1,13 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+// ReSharper disable All
 
 namespace TestHelper
 {
@@ -13,6 +16,20 @@ namespace TestHelper
     /// </summary>
     public abstract partial class DiagnosticVerifier
     {
+        protected abstract string TestDataFolder { get; }
+
+        public string ReadTestData(string testDataFileName)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = $"StackExchange.Redis.Analyzer.Test.TestData.{TestDataFolder}.{testDataFileName}";
+
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
+            using (var reader = new StreamReader(stream))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+
         #region To be implemented by Test classes
         /// <summary>
         /// Get the CSharp analyzer being tested - to be implemented in non-abstract class

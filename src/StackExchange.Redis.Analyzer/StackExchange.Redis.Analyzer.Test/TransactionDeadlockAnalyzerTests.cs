@@ -2,15 +2,15 @@
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using StackExchange.Redis.Analyzer.Test.Helpers;
-
 using TestHelper;
 
 namespace StackExchange.Redis.Analyzer.Test
 {
     [TestClass]
-    public class StackExchangeRedisAnalyzerTests : DiagnosticVerifier
+    public class TransactionDeadlockAnalyzerTests : DiagnosticVerifier
     {
+        protected override string TestDataFolder => "TransactionDeadlockAnalyzer";
+
         [TestMethod]
         public void Empty_NotTriggered()
         {
@@ -22,12 +22,12 @@ namespace StackExchange.Redis.Analyzer.Test
         [TestMethod]
         public void AwaitStringGetAsync_AnalyzerTriggered()
         {
-            var code = EmbeddedResourceHelper.ReadTestData("AwaitStringGetAsyncTestData.cs");
+            var code = ReadTestData("AwaitStringGetAsyncTestData.cs");
 
             var expected = new DiagnosticResult
                                {
-                                   Id = StackExchangeRedisAnalyzer.DiagnosticId,
-                                   Message = string.Format(StackExchangeRedisAnalyzer.MessageFormat, "StringGetAsync"),
+                                   Id = TransactionDeadlockAnalyzer.DiagnosticId,
+                                   Message = string.Format(TransactionDeadlockAnalyzer.MessageFormat, "StringGetAsync"),
                                    Severity = DiagnosticSeverity.Warning,
                                    Locations = new[] { new DiagnosticResultLocation("Test0.cs", 12, 25) }
                                };
@@ -38,12 +38,12 @@ namespace StackExchange.Redis.Analyzer.Test
         [TestMethod]
         public void ResultStringGetAsync_AnalyzerTriggered()
         {
-            var code = EmbeddedResourceHelper.ReadTestData("ResultStringGetAsyncTestData.cs");
+            var code = ReadTestData("ResultStringGetAsyncTestData.cs");
 
             var expected = new DiagnosticResult
                                {
-                                   Id = StackExchangeRedisAnalyzer.DiagnosticId,
-                                   Message = string.Format(StackExchangeRedisAnalyzer.MessageFormat, "StringGetAsync"),
+                                   Id = TransactionDeadlockAnalyzer.DiagnosticId,
+                                   Message = string.Format(TransactionDeadlockAnalyzer.MessageFormat, "StringGetAsync"),
                                    Severity = DiagnosticSeverity.Warning,
                                    Locations = new[] { new DiagnosticResultLocation("Test0.cs", 12, 21) }
                                };
@@ -54,12 +54,12 @@ namespace StackExchange.Redis.Analyzer.Test
         [TestMethod]
         public void WaitStringGetAsync_AnalyzerTriggered()
         {
-            var code = EmbeddedResourceHelper.ReadTestData("WaitStringGetAsyncTestData.cs");
+            var code = ReadTestData("WaitStringGetAsyncTestData.cs");
 
             var expected = new DiagnosticResult
                                {
-                                   Id = StackExchangeRedisAnalyzer.DiagnosticId,
-                                   Message = string.Format(StackExchangeRedisAnalyzer.MessageFormat, "StringGetAsync"),
+                                   Id = TransactionDeadlockAnalyzer.DiagnosticId,
+                                   Message = string.Format(TransactionDeadlockAnalyzer.MessageFormat, "StringGetAsync"),
                                    Severity = DiagnosticSeverity.Warning,
                                    Locations = new[] { new DiagnosticResultLocation("Test0.cs", 12, 13) }
                                };
@@ -70,12 +70,12 @@ namespace StackExchange.Redis.Analyzer.Test
         [TestMethod]
         public void TaskWaitAllStringGetAsync_AnalyzerTriggered()
         {
-            var code = EmbeddedResourceHelper.ReadTestData("TaskWaitAllStringGetAsyncTestData.cs");
+            var code = ReadTestData("TaskWaitAllStringGetAsyncTestData.cs");
 
             var expected = new DiagnosticResult
                                {
-                                   Id = StackExchangeRedisAnalyzer.DiagnosticId,
-                                   Message = string.Format(StackExchangeRedisAnalyzer.MessageFormat, "StringGetAsync"),
+                                   Id = TransactionDeadlockAnalyzer.DiagnosticId,
+                                   Message = string.Format(TransactionDeadlockAnalyzer.MessageFormat, "StringGetAsync"),
                                    Severity = DiagnosticSeverity.Warning,
                                    Locations = new[] { new DiagnosticResultLocation("Test0.cs", 12, 26) }
                                };
@@ -86,14 +86,14 @@ namespace StackExchange.Redis.Analyzer.Test
         [TestMethod]
         public void ContinueWithCallback_NotTriggered()
         {
-            var code = EmbeddedResourceHelper.ReadTestData("ContinueWithCallbackTestData.cs");
+            var code = ReadTestData("ContinueWithCallbackTestData.cs");
 
             VerifyCSharpDiagnostic(code);
         }
 
         protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
         {
-            return new StackExchangeRedisAnalyzer();
+            return new TransactionDeadlockAnalyzer();
         }
     }
 }

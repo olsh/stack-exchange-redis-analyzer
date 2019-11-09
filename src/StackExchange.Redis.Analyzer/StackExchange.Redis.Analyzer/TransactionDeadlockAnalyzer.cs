@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace StackExchange.Redis.Analyzer
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class StackExchangeRedisAnalyzer : DiagnosticAnalyzer
+    public class TransactionDeadlockAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "SER001";
 
@@ -31,7 +31,8 @@ namespace StackExchange.Redis.Analyzer
             Category,
             DiagnosticSeverity.Warning,
             true,
-            Description);
+            Description,
+            "https://github.com/olsh/stack-exchange-redis-analyzer#ser001");
 
         private static readonly string[] BlockingTaskMethods = { "WaitAll", "WhenAll", "WhenAny", "WaitAny" };
 
