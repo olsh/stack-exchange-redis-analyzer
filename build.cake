@@ -1,8 +1,8 @@
-#tool nuget:?package=Codecov
-#addin nuget:?package=Cake.Codecov
+#tool nuget:?package=Codecov&version=1.13.0
+#addin nuget:?package=Cake.Codecov&version=1.0.1
 
-#tool nuget:?package=MSBuild.SonarQube.Runner.Tool
-#addin nuget:?package=Cake.Sonar
+#tool nuget:?package=MSBuild.SonarQube.Runner.Tool&version=4.8.0
+#addin nuget:?package=Cake.Sonar&version=1.1.31
 
 var target = Argument("target", "Default");
 
@@ -42,7 +42,7 @@ Task("Build")
     var settings = new MSBuildSettings
     {
         Configuration = buildConfiguration,
-        ToolVersion = MSBuildToolVersion.VS2017,
+        ToolVersion = MSBuildToolVersion.VS2022,
         MSBuildPlatform = MSBuildPlatform.x86,
         Restore = true,
         Verbosity = Verbosity.Minimal
@@ -55,19 +55,19 @@ Task("Test")
   .IsDependentOn("Build")
   .Does(() =>
 {
-     var settings = new DotNetCoreTestSettings
+     var settings = new DotNetTestSettings
      {
          Configuration = buildConfiguration
      };
 
-     DotNetCoreTest(testProjectFile, settings);
+     DotNetTest(testProjectFile, settings);
 });
 
 Task("CodeCoverage")
   .IsDependentOn("Build")
   .Does(() =>
 {
-    var settings = new DotNetCoreTestSettings
+    var settings = new DotNetTestSettings
     {
         Configuration = buildConfiguration,
         ArgumentCustomization = args => args
@@ -75,7 +75,7 @@ Task("CodeCoverage")
                                             .Append("/p:CoverletOutputFormat=opencover")
     };
 
-    DotNetCoreTest(testProjectFile, settings);
+    DotNetTest(testProjectFile, settings);
 
     Codecov(string.Format("{0}coverage.opencover.xml", testProjectFolder), EnvironmentVariable("codecov:token"));
 });
