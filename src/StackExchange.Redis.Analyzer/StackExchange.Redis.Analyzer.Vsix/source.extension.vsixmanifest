@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="StackExchange.Redis.Analyzer.753ddcc3-0d9c-41fd-be3f-060e14cd2e20" Version="1.3.0" Language="en-US" Publisher="Oleg Shevchenko"/>
+        <Identity Id="StackExchange.Redis.Analyzer.753ddcc3-0d9c-41fd-be3f-060e14cd2e20" Version="1.3.1" Language="en-US" Publisher="Oleg Shevchenko"/>
         <DisplayName>StackExchange.Redis.Analyzer</DisplayName>
         <Description xml:space="preserve">Roslyn-based analyzer for StackExchange.Redis library</Description>
         <MoreInfo>https://github.com/olsh/stack-exchange-redis-analyzer</MoreInfo>
