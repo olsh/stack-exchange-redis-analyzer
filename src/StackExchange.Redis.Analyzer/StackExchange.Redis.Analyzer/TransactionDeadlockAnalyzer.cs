@@ -19,10 +19,9 @@ namespace StackExchange.Redis.Analyzer
         private const string Category = "API Guidance";
 
         private static readonly LocalizableString Description =
-            "Async methods on ITransaction type shouldn't be blocked";
+            "Async methods on ITransaction type shouldn't be blocked.";
 
-        private static readonly string
-            Title = "Async method is blocked on transaction before the transaction execution";
+        private const string Title = "Async method is blocked on transaction before the transaction execution";
 
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             DiagnosticId,
@@ -40,6 +39,9 @@ namespace StackExchange.Redis.Analyzer
 
         public override void Initialize(AnalysisContext context)
         {
+            context.EnableConcurrentExecution();
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
+
             context.RegisterSyntaxNodeAction(AnalyzeAwaitExpression, SyntaxKind.AwaitExpression);
             context.RegisterSyntaxNodeAction(AnalyzeInvocationExpression, SyntaxKind.InvocationExpression);
             context.RegisterSyntaxNodeAction(AnalyzeArgumentExpression, SyntaxKind.Argument);
@@ -115,7 +117,7 @@ namespace StackExchange.Redis.Analyzer
                     return false;
                 }
 
-                if (methodSymbol.ContainingType.Equals(taskType) && BlockingTaskMethods.Contains(methodSymbol.MetadataName))
+                if (methodSymbol.ContainingType.Equals(taskType, SymbolEqualityComparer.Default) && BlockingTaskMethods.Contains(methodSymbol.MetadataName))
                 {
                     return true;
                 }
@@ -124,6 +126,11 @@ namespace StackExchange.Redis.Analyzer
             }
 
             var invocationExpressionSyntax = argumentSyntax.Parent?.Parent as InvocationExpressionSyntax;
+            if (invocationExpressionSyntax == null)
+            {
+                return false;
+            }
+
             var symbolInfo = context.SemanticModel.GetSymbolInfo(invocationExpressionSyntax);
 
             return BlockedTaskMethod(symbolInfo.Symbol) || (symbolInfo.CandidateSymbols.Length > 0 && symbolInfo.CandidateSymbols.All(BlockedTaskMethod));
@@ -148,7 +155,7 @@ namespace StackExchange.Redis.Analyzer
             var symbolInfo = context.SemanticModel.GetSymbolInfo(memberName);
             var methodName = memberAccessExpressionSyntax.Name.ToString();
 
-            return symbolInfo.Symbol is ILocalSymbol singleSymbol && singleSymbol.Type.Equals(transactionType)
+            return symbolInfo.Symbol is ILocalSymbol singleSymbol && singleSymbol.Type.Equals(transactionType, SymbolEqualityComparer.Default)
                                                                   && methodName != "ExecuteAsync";
         }
     }

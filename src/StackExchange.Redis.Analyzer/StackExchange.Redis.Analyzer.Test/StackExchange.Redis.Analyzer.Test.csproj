@@ -1,39 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="TestData\TransactionDeadlockAnalyzer\AwaitStringGetAsyncTestData.cs" />
-    <Compile Remove="TestData\TransactionDeadlockAnalyzer\ContinueWithCallbackTestData.cs" />
-    <Compile Remove="TestData\TransactionDeadlockAnalyzer\ResultStringGetAsyncTestData.cs" />
-    <Compile Remove="TestData\TransactionDeadlockAnalyzer\TaskWaitAllStringGetAsyncTestData.cs" />
-    <Compile Remove="TestData\TransactionDeadlockAnalyzer\WaitStringGetAsyncTestData.cs" />
+    <Compile Remove="TestData\**" />
+    <EmbeddedResource Include="TestData\**" />
+
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="TestData\TransactionDeadlockAnalyzer\AwaitStringGetAsyncTestData.cs" />
-    <EmbeddedResource Include="TestData\TransactionDeadlockAnalyzer\ContinueWithCallbackTestData.cs" />
-    <EmbeddedResource Include="TestData\TransactionDeadlockAnalyzer\TaskWaitAllStringGetAsyncTestData.cs" />
-    <EmbeddedResource Include="TestData\TransactionDeadlockAnalyzer\WaitStringGetAsyncTestData.cs" />
-    <EmbeddedResource Include="TestData\TransactionDeadlockAnalyzer\ResultStringGetAsyncTestData.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="coverlet.msbuild" Version="2.7.0">
+    <PackageReference Include="coverlet.msbuild" Version="3.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.6.2">
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.8.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="2.0.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="2.0.0" />
-    <PackageReference Include="StackExchange.Redis" Version="2.0.519" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.0.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.96" />
   </ItemGroup>
 
   <ItemGroup>

@@ -13,18 +13,35 @@ Roslyn-based analyzer for StackExchange.Redis library
 
 Async methods on ITransaction type shouldn't be blocked
 
-Noncompliant Code Example:  
+Noncompliant Code Example:
 ```csharp
 var transaction = db.CreateTransaction();
 await transaction.StringSetAsync("key", "value").ConfigureAwait(false);
-		
+
 await transaction.ExecuteAsync().ConfigureAwait(false);
 ```
 
-Compliant Solution:  
+Compliant Solution:
 ```csharp
 var transaction = db.CreateTransaction();
 transaction.StringSetAsync("key", "value").ConfigureAwait(false);
-		
+
 await transaction.ExecuteAsync().ConfigureAwait(false);
+```
+
+## SER002
+
+Getting data in a loop can be slow, consider using a batch instead and overload with array of keys
+
+Noncompliant Code Example:
+```csharp
+foreach (var key in new[] { "one", "two" })
+{
+    var value = db.StringGetAsync(key);
+}
+```
+
+Compliant Solution:
+```csharp
+var results = db.StringGetAsync(new[] { "one", "two" });
 ```
