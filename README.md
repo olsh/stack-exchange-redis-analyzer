@@ -31,7 +31,7 @@ await transaction.ExecuteAsync().ConfigureAwait(false);
 
 ## SER002
 
-Getting data in a loop can be slow, consider using a batch instead and overload with array of keys
+Sending commands in a loop can be slow, batch overload with array of keys instead
 
 Noncompliant Code Example:
 ```csharp

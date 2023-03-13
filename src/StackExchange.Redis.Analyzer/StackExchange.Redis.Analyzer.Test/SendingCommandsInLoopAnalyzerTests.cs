@@ -6,7 +6,7 @@ using TestHelper;
 namespace StackExchange.Redis.Analyzer.Test;
 
 [TestClass]
-public class GettingDataInLoopAnalyzerTests : DiagnosticVerifier
+public class SendingCommandsInLoopAnalyzerTests : DiagnosticVerifier
 {
     protected override string TestDataFolder => "GettingDataInLoopAnalyzer";
 
@@ -24,8 +24,8 @@ public class GettingDataInLoopAnalyzerTests : DiagnosticVerifier
         var code = ReadTestData("GetStringInLoop.cs");
         var expected = new DiagnosticResult
                            {
-                               Id = GettingDataInLoopAnalyzer.DiagnosticId,
-                               Message = string.Format(GettingDataInLoopAnalyzer.MessageFormat, "StringGetAsync", "StackExchange.Redis.IDatabaseAsync.StringGetAsync(StackExchange.Redis.RedisKey[], StackExchange.Redis.CommandFlags)"),
+                               Id = SendingCommandsInLoopAnalyzer.DiagnosticId,
+                               Message = string.Format(SendingCommandsInLoopAnalyzer.MessageFormat, "StringGetAsync", "StackExchange.Redis.IDatabaseAsync.StringGetAsync(StackExchange.Redis.RedisKey[], StackExchange.Redis.CommandFlags)"),
                                Severity = DiagnosticSeverity.Warning,
                                Locations = new[] { new DiagnosticResultLocation("Test0.cs", 13, 35) }
                            };
@@ -39,10 +39,10 @@ public class GettingDataInLoopAnalyzerTests : DiagnosticVerifier
         var code = ReadTestData("SetContainsInForeach.cs");
         var expected = new DiagnosticResult
         {
-            Id = GettingDataInLoopAnalyzer.DiagnosticId,
-            Message = string.Format(GettingDataInLoopAnalyzer.MessageFormat, "SetContains", "StackExchange.Redis.IDatabase.SetContains(StackExchange.Redis.RedisKey, StackExchange.Redis.RedisValue[], StackExchange.Redis.CommandFlags)"),
+            Id = SendingCommandsInLoopAnalyzer.DiagnosticId,
+            Message = string.Format(SendingCommandsInLoopAnalyzer.MessageFormat, "SetContains", "StackExchange.Redis.IDatabase.SetContains(StackExchange.Redis.RedisKey, StackExchange.Redis.RedisValue[], StackExchange.Redis.CommandFlags)"),
             Severity = DiagnosticSeverity.Warning,
-            Locations = new[] { new DiagnosticResultLocation("Test0.cs", 16, 29) }
+            Locations = new[] { new DiagnosticResultLocation("Test0.cs", 17, 29) }
         };
 
         VerifyCSharpDiagnostic(code, expected);
@@ -50,6 +50,6 @@ public class GettingDataInLoopAnalyzerTests : DiagnosticVerifier
 
     protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
     {
-        return new GettingDataInLoopAnalyzer();
+        return new SendingCommandsInLoopAnalyzer();
     }
 }

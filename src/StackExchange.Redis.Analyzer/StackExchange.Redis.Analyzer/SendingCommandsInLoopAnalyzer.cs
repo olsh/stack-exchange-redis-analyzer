@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace StackExchange.Redis.Analyzer
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class GettingDataInLoopAnalyzer : DiagnosticAnalyzer
+    public class SendingCommandsInLoopAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "SER002";
 
@@ -17,9 +17,9 @@ namespace StackExchange.Redis.Analyzer
         private const string Category = "API Guidance";
 
         private static readonly LocalizableString Description =
-            "Getting data in a loop can be slow, consider using a batch instead and overload with array of keys.";
+            "Sending commands in a loop can be slow, consider using a batch overload with array of keys instead.";
 
-        private const string Title = "Getting data in a loop can be slow, consider using a batch instead and overload with array of keys";
+        private const string Title = "Sending commands in a loop can be slow, consider using a batch overload with array of keys instead";
 
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             DiagnosticId,
@@ -116,7 +116,8 @@ namespace StackExchange.Redis.Analyzer
             var overloads = containingType
                 .GetMembers(methodSymbol.Name)
                 .OfType<IMethodSymbol>()
-                .Where(o => o.Equals(methodSymbol, SymbolEqualityComparer.Default) == false);
+                .Where(o => o.Equals(methodSymbol, SymbolEqualityComparer.Default) == false)
+                .ToArray();
             foreach (var parameter in parameters)
             {
                 if (parameter.Type is IArrayTypeSymbol)
