@@ -148,7 +148,7 @@ namespace StackExchange.Redis.Analyzer
                     return false;
                 }
 
-                if (overloadParameter.Type.Equals(parameter.Type, SymbolEqualityComparer.Default))
+                if (overloadParameter.Type.Equals(parameter.Type))
                 {
                     continue;
                 }
@@ -218,7 +218,7 @@ namespace StackExchange.Redis.Analyzer
                     continue;
                 }
 
-                if (assignmentSymbol.Equals(parameterSymbol, SymbolEqualityComparer.Default))
+                if (assignmentSymbol.Equals(parameterSymbol))
                 {
                     return true;
                 }
