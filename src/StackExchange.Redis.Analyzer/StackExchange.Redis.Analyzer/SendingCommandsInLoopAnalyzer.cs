@@ -121,7 +121,8 @@ namespace StackExchange.Redis.Analyzer
 
             foreach (var overload in overloads)
             {
-                if (IsSuitableBatchOverload(methodSymbol, overload, expressionSyntax, outerLoopSyntax, assignments, contextSemanticModel))
+                if (IsSuitableBatchOverload(methodSymbol, overload, expressionSyntax, outerLoopSyntax, assignments,
+                        contextSemanticModel))
                 {
                     return overload;
                 }
@@ -153,7 +154,7 @@ namespace StackExchange.Redis.Analyzer
                     continue;
                 }
 
-                if (IsParameterIsArrayOf(overloadParameter, parameter))
+                if (IsSuitableBatchOverload(sourceMethod, overload))
                 {
                     var argumentExpression = expressionSyntax.ArgumentList.Arguments[parameter.Ordinal].Expression;
                     if (IsParameterIsModifiedInsideTheLoop(contextSemanticModel, assignments, outerLoopSyntax, argumentExpression))
@@ -227,7 +228,36 @@ namespace StackExchange.Redis.Analyzer
             return false;
         }
 
-        private bool IsParameterIsArrayOf(IParameterSymbol arrayParameter, IParameterSymbol baseParameter)
+        private bool IsSuitableBatchOverload(IMethodSymbol sourceMethod, IMethodSymbol overload)
+        {
+            var hasArrayParameter = false;
+            foreach (var parameter in sourceMethod.Parameters)
+            {
+                var overloadParameter = overload.Parameters.SingleOrDefault(p => p.Ordinal == parameter.Ordinal);
+                if (overloadParameter == null)
+                {
+                    return false;
+                }
+
+                if (overloadParameter.Type.Equals(parameter.Type))
+                {
+                    continue;
+                }
+
+                if (IsMethodIsArrayOf(overloadParameter, parameter))
+                {
+                    hasArrayParameter = true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return hasArrayParameter;
+        }
+
+        private bool IsMethodIsArrayOf(IParameterSymbol arrayParameter, IParameterSymbol baseParameter)
         {
             if (!(arrayParameter.Type is IArrayTypeSymbol arrayElementType))
             {
