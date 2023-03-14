@@ -4,13 +4,13 @@ namespace StackExchange.Redis.Analyzer.Test.TestData
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
             IDatabase db = redis.GetDatabase();
-            for (int i = 0; i < 5; i++)
+            foreach (var setValue in new[] { "one", "two" })
             {
-                var value = await db.StringGetAsync(i.ToString());
+                var value = db.SetCombine(SetOperation.Intersect, "key", setValue);
             }
         }
     }

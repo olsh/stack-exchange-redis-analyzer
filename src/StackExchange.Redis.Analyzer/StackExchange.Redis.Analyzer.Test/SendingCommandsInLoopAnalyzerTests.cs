@@ -13,9 +13,9 @@ public class SendingCommandsInLoopAnalyzerTests : DiagnosticVerifier
     [TestMethod]
     public void Empty_NotTriggered()
     {
-        const string Test = @"";
+        const string test = @"";
 
-        VerifyCSharpDiagnostic(Test);
+        VerifyCSharpDiagnostic(test);
     }
 
     [TestMethod]
@@ -46,6 +46,30 @@ public class SendingCommandsInLoopAnalyzerTests : DiagnosticVerifier
         };
 
         VerifyCSharpDiagnostic(code, expected);
+    }
+
+    [TestMethod]
+    public void SetCombineInForeach_NotTriggered()
+    {
+        var code = ReadTestData("SetCombineInForeach.cs");
+
+        VerifyCSharpDiagnostic(code);
+    }
+
+    [TestMethod]
+    public void SetRemoveInForeach_NotTriggered()
+    {
+        var code = ReadTestData("SetRemoveInForeach.cs");
+
+        VerifyCSharpDiagnostic(code);
+    }
+
+    [TestMethod]
+    public void GetConstantStringInLoop_NotTriggered()
+    {
+        var code = ReadTestData("GetConstantStringInLoop.cs");
+
+        VerifyCSharpDiagnostic(code);
     }
 
     protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()

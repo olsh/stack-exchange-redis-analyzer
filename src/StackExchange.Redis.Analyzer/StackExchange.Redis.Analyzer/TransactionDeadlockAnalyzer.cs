@@ -24,7 +24,9 @@ namespace StackExchange.Redis.Analyzer
         private const string Title = "Async method is blocked on transaction before the transaction execution";
 
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+#pragma warning disable RS2008
             DiagnosticId,
+#pragma warning restore RS2008
             Title,
             MessageFormat,
             Category,

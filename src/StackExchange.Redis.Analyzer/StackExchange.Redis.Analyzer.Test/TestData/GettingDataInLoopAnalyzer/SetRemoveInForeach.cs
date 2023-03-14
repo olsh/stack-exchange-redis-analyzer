@@ -4,13 +4,14 @@ namespace StackExchange.Redis.Analyzer.Test.TestData
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
             IDatabase db = redis.GetDatabase();
-            for (int i = 0; i < 5; i++)
+            var value = "deleted";
+            foreach (var setKey in new[] { "one", "two" })
             {
-                var value = await db.StringGetAsync(i.ToString());
+                db.SetRemove(setKey, value);
             }
         }
     }

@@ -22,7 +22,9 @@ namespace StackExchange.Redis.Analyzer
         private const string Title = "Sending commands in a loop can be slow, consider using a batch overload with array of keys instead";
 
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+#pragma warning disable RS2008
             DiagnosticId,
+#pragma warning restore RS2008
             Title,
             MessageFormat,
             Category,
@@ -47,13 +49,14 @@ namespace StackExchange.Redis.Analyzer
                 return;
             }
 
-            var overload = FindMethodWithArrayOverload(expressionSyntax, context.SemanticModel);
-            if (overload == null)
+            var outerLoop = FindOuterLoop(expressionSyntax);
+            if (outerLoop == null)
             {
                 return;
             }
 
-            if (!IsInLoop(expressionSyntax))
+            var overload = FindMethodWithArrayOverload(expressionSyntax, outerLoop, context.SemanticModel);
+            if (overload == null)
             {
                 return;
             }
@@ -61,27 +64,18 @@ namespace StackExchange.Redis.Analyzer
             context.ReportDiagnostic(Diagnostic.Create(Rule, context.Node.GetLocation(), memberAccessExpressionSyntax.Name, overload.OriginalDefinition.ToString()));
         }
 
-        private bool IsInLoop(InvocationExpressionSyntax expressionSyntax)
+        private StatementSyntax FindOuterLoop(InvocationExpressionSyntax expressionSyntax)
         {
-            if (expressionSyntax.FirstAncestorOrSelf<ForStatementSyntax>() != null)
-            {
-                return true;
-            }
-
-            if (expressionSyntax.FirstAncestorOrSelf<ForEachStatementSyntax>() != null)
-            {
-                return true;
-            }
-
-            if (expressionSyntax.FirstAncestorOrSelf<WhileStatementSyntax>() != null)
-            {
-                return true;
-            }
-
-            return false;
+            return expressionSyntax.FirstAncestorOrSelf<ForStatementSyntax>()
+                   ?? (StatementSyntax)expressionSyntax.FirstAncestorOrSelf<ForEachStatementSyntax>()
+                   ?? expressionSyntax.FirstAncestorOrSelf<WhileStatementSyntax>();
         }
 
-        private IMethodSymbol FindMethodWithArrayOverload(InvocationExpressionSyntax expressionSyntax, SemanticModel contextSemanticModel)
+        // ReSharper disable once CognitiveComplexity
+        private IMethodSymbol FindMethodWithArrayOverload(
+            InvocationExpressionSyntax expressionSyntax,
+            StatementSyntax outerLoopSyntax,
+            SemanticModel contextSemanticModel)
         {
             var methodSymbol = contextSemanticModel.GetSymbolInfo(expressionSyntax).Symbol as IMethodSymbol;
             var containingType = methodSymbol?.ContainingType;
@@ -118,27 +112,122 @@ namespace StackExchange.Redis.Analyzer
                 .OfType<IMethodSymbol>()
                 .Where(o => o.Equals(methodSymbol) == false)
                 .ToArray();
-            foreach (var parameter in parameters)
-            {
-                if (parameter.Type is IArrayTypeSymbol)
-                {
-                    continue;
-                }
 
-                foreach (var overload in overloads)
+            // Get assignments inside the loop
+            var assignments = outerLoopSyntax
+                .DescendantNodes()
+                .OfType<AssignmentExpressionSyntax>()
+                .ToArray();
+
+            foreach (var overload in overloads)
+            {
+                if (IsSuitableBatchOverload(methodSymbol, overload, expressionSyntax, outerLoopSyntax, assignments, contextSemanticModel))
                 {
-                    var matchedParameter = overload.Parameters.SingleOrDefault(p => p.Ordinal == parameter.Ordinal);
-                    if (matchedParameter != null && IsMethodIsArrayOf(matchedParameter, parameter))
-                    {
-                        return overload;
-                    }
+                    return overload;
                 }
             }
 
             return null;
         }
 
-        private bool IsMethodIsArrayOf(IParameterSymbol arrayParameter, IParameterSymbol baseParameter)
+        // ReSharper disable once CognitiveComplexity
+        private bool IsSuitableBatchOverload(
+            IMethodSymbol sourceMethod,
+            IMethodSymbol overload,
+            InvocationExpressionSyntax expressionSyntax,
+            StatementSyntax outerLoopSyntax,
+            AssignmentExpressionSyntax[] assignments,
+            SemanticModel contextSemanticModel)
+        {
+            var hasArrayParameter = false;
+            foreach (var parameter in sourceMethod.Parameters)
+            {
+                var overloadParameter = overload.Parameters.SingleOrDefault(p => p.Ordinal == parameter.Ordinal);
+                if (overloadParameter == null)
+                {
+                    return false;
+                }
+
+                if (overloadParameter.Type.Equals(parameter.Type))
+                {
+                    continue;
+                }
+
+                if (IsParameterIsArrayOf(overloadParameter, parameter))
+                {
+                    var argumentExpression = expressionSyntax.ArgumentList.Arguments[parameter.Ordinal].Expression;
+                    if (IsParameterIsModifiedInsideTheLoop(contextSemanticModel, assignments, outerLoopSyntax, argumentExpression))
+                    {
+                        hasArrayParameter = true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return hasArrayParameter;
+        }
+
+        // ReSharper disable once CognitiveComplexity
+        private bool IsParameterIsModifiedInsideTheLoop(
+            SemanticModel contextSemanticModel,
+            AssignmentExpressionSyntax[] assignments,
+            StatementSyntax outerLoopSyntax,
+            ExpressionSyntax parameter)
+        {
+            // Check if the parameter is an invocation expression
+            if (parameter is InvocationExpressionSyntax)
+            {
+                return true;
+            }
+
+            var parameterSymbol = contextSemanticModel.GetSymbolInfo(parameter).Symbol;
+            if (parameterSymbol == null)
+            {
+                return false;
+            }
+
+            // Check if parameter is a constant
+            if (parameterSymbol is ILocalSymbol localSymbol && localSymbol.HasConstantValue)
+            {
+                return false;
+            }
+
+            var constantValue = contextSemanticModel.GetConstantValue(parameter);
+            if (constantValue.HasValue && constantValue.Value != null)
+            {
+                return false;
+            }
+
+            // Check if parameter is modified inside the loop
+            foreach (var declaringSyntaxReference in parameterSymbol.DeclaringSyntaxReferences)
+            {
+                if (outerLoopSyntax.Contains(declaringSyntaxReference.GetSyntax()))
+                {
+                    return true;
+                }
+            }
+
+            foreach (var assignment in assignments)
+            {
+                var assignmentSymbol = contextSemanticModel.GetSymbolInfo(assignment.Left).Symbol;
+                if (assignmentSymbol == null)
+                {
+                    continue;
+                }
+
+                if (assignmentSymbol.Equals(parameterSymbol))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsParameterIsArrayOf(IParameterSymbol arrayParameter, IParameterSymbol baseParameter)
         {
             if (!(arrayParameter.Type is IArrayTypeSymbol arrayElementType))
             {

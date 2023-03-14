@@ -10,7 +10,8 @@ namespace StackExchange.Redis.Analyzer.Test.TestData
             IDatabase db = redis.GetDatabase();
             for (int i = 0; i < 5; i++)
             {
-                var value = await db.StringGetAsync(i.ToString());
+                const var demo = "constant";
+                var value = await db.StringGetAsync(demo);
             }
         }
     }
