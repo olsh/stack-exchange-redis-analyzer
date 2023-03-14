@@ -144,7 +144,7 @@ namespace StackExchange.Redis.Analyzer
                     return false;
                 }
 
-                if (overloadParameter.Type.Equals(parameter.Type, SymbolEqualityComparer.Default))
+                if (overloadParameter.Type.Equals(parameter.Type))
                 {
                     continue;
                 }
