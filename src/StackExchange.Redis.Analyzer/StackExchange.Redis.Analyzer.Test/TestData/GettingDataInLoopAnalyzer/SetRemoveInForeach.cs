@@ -8,9 +8,10 @@ namespace StackExchange.Redis.Analyzer.Test.TestData
         {
             ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
             IDatabase db = redis.GetDatabase();
-            foreach (var setValue in new[] { "one", "two" })
+            var value = "deleted";
+            foreach (var setKey in new[] { "one", "two" })
             {
-                var value = db.SetCombine(SetOperation.Intersect, "key", setValue);
+                db.SetRemove(setKey, value);
             }
         }
     }

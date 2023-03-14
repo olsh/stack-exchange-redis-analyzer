@@ -49,13 +49,14 @@ namespace StackExchange.Redis.Analyzer
                 return;
             }
 
-            var overload = FindMethodWithArrayOverload(expressionSyntax, context.SemanticModel);
-            if (overload == null)
+            var outerLoop = FindOuterLoop(expressionSyntax);
+            if (outerLoop == null)
             {
                 return;
             }
 
-            if (!IsInLoop(expressionSyntax))
+            var overload = FindMethodWithArrayOverload(expressionSyntax, outerLoop, context.SemanticModel);
+            if (overload == null)
             {
                 return;
             }
@@ -63,28 +64,18 @@ namespace StackExchange.Redis.Analyzer
             context.ReportDiagnostic(Diagnostic.Create(Rule, context.Node.GetLocation(), memberAccessExpressionSyntax.Name, overload.OriginalDefinition.ToString()));
         }
 
-        private bool IsInLoop(InvocationExpressionSyntax expressionSyntax)
+        private StatementSyntax FindOuterLoop(InvocationExpressionSyntax expressionSyntax)
         {
-            if (expressionSyntax.FirstAncestorOrSelf<ForStatementSyntax>() != null)
-            {
-                return true;
-            }
-
-            if (expressionSyntax.FirstAncestorOrSelf<ForEachStatementSyntax>() != null)
-            {
-                return true;
-            }
-
-            if (expressionSyntax.FirstAncestorOrSelf<WhileStatementSyntax>() != null)
-            {
-                return true;
-            }
-
-            return false;
+            return expressionSyntax.FirstAncestorOrSelf<ForStatementSyntax>()
+                   ?? (StatementSyntax)expressionSyntax.FirstAncestorOrSelf<ForEachStatementSyntax>()
+                   ?? expressionSyntax.FirstAncestorOrSelf<WhileStatementSyntax>();
         }
 
         // ReSharper disable once CognitiveComplexity
-        private IMethodSymbol FindMethodWithArrayOverload(InvocationExpressionSyntax expressionSyntax, SemanticModel contextSemanticModel)
+        private IMethodSymbol FindMethodWithArrayOverload(
+            InvocationExpressionSyntax expressionSyntax,
+            StatementSyntax outerLoopSyntax,
+            SemanticModel contextSemanticModel)
         {
             var methodSymbol = contextSemanticModel.GetSymbolInfo(expressionSyntax).Symbol as IMethodSymbol;
             var containingType = methodSymbol?.ContainingType;
@@ -122,15 +113,119 @@ namespace StackExchange.Redis.Analyzer
                 .Where(o => o.Equals(methodSymbol) == false)
                 .ToArray();
 
+            // Get assignments inside the loop
+            var assignments = outerLoopSyntax
+                .DescendantNodes()
+                .OfType<AssignmentExpressionSyntax>()
+                .ToArray();
+
             foreach (var overload in overloads)
             {
-                if (IsSuitableBatchOverload(methodSymbol, overload))
+                if (IsSuitableBatchOverload(methodSymbol, overload, expressionSyntax, outerLoopSyntax, assignments,
+                        contextSemanticModel))
                 {
                     return overload;
                 }
             }
 
             return null;
+        }
+
+        // ReSharper disable once CognitiveComplexity
+        private bool IsSuitableBatchOverload(
+            IMethodSymbol sourceMethod,
+            IMethodSymbol overload,
+            InvocationExpressionSyntax expressionSyntax,
+            StatementSyntax outerLoopSyntax,
+            AssignmentExpressionSyntax[] assignments,
+            SemanticModel contextSemanticModel)
+        {
+            var hasArrayParameter = false;
+            foreach (var parameter in sourceMethod.Parameters)
+            {
+                var overloadParameter = overload.Parameters.SingleOrDefault(p => p.Ordinal == parameter.Ordinal);
+                if (overloadParameter == null)
+                {
+                    return false;
+                }
+
+                if (overloadParameter.Type.Equals(parameter.Type))
+                {
+                    continue;
+                }
+
+                if (IsSuitableBatchOverload(sourceMethod, overload))
+                {
+                    var argumentExpression = expressionSyntax.ArgumentList.Arguments[parameter.Ordinal].Expression;
+                    if (IsParameterIsModifiedInsideTheLoop(contextSemanticModel, assignments, outerLoopSyntax, argumentExpression))
+                    {
+                        hasArrayParameter = true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return hasArrayParameter;
+        }
+
+        // ReSharper disable once CognitiveComplexity
+        private bool IsParameterIsModifiedInsideTheLoop(
+            SemanticModel contextSemanticModel,
+            AssignmentExpressionSyntax[] assignments,
+            StatementSyntax outerLoopSyntax,
+            ExpressionSyntax parameter)
+        {
+            // Check if the parameter is an invocation expression
+            if (parameter is InvocationExpressionSyntax)
+            {
+                return true;
+            }
+
+            var parameterSymbol = contextSemanticModel.GetSymbolInfo(parameter).Symbol;
+            if (parameterSymbol == null)
+            {
+                return false;
+            }
+
+            // Check if parameter is a constant
+            if (parameterSymbol is ILocalSymbol localSymbol && localSymbol.HasConstantValue)
+            {
+                return false;
+            }
+
+            var constantValue = contextSemanticModel.GetConstantValue(parameter);
+            if (constantValue.HasValue && constantValue.Value != null)
+            {
+                return false;
+            }
+
+            // Check if parameter is modified inside the loop
+            foreach (var declaringSyntaxReference in parameterSymbol.DeclaringSyntaxReferences)
+            {
+                if (outerLoopSyntax.Contains(declaringSyntaxReference.GetSyntax()))
+                {
+                    return true;
+                }
+            }
+
+            foreach (var assignment in assignments)
+            {
+                var assignmentSymbol = contextSemanticModel.GetSymbolInfo(assignment.Left).Symbol;
+                if (assignmentSymbol == null)
+                {
+                    continue;
+                }
+
+                if (assignmentSymbol.Equals(parameterSymbol))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private bool IsSuitableBatchOverload(IMethodSymbol sourceMethod, IMethodSymbol overload)
