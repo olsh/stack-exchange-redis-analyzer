@@ -110,7 +110,7 @@ namespace StackExchange.Redis.Analyzer
             var overloads = containingType
                 .GetMembers(methodSymbol.Name)
                 .OfType<IMethodSymbol>()
-                .Where(o => o.Equals(methodSymbol, SymbolEqualityComparer.Default) == false)
+                .Where(o => o.Equals(methodSymbol) == false)
                 .ToArray();
 
             // Get assignments inside the loop
@@ -234,7 +234,7 @@ namespace StackExchange.Redis.Analyzer
                 return false;
             }
 
-            return arrayElementType.ElementType.Equals(baseParameter.Type, SymbolEqualityComparer.Default);
+            return arrayElementType.ElementType.Equals(baseParameter.Type);
         }
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
