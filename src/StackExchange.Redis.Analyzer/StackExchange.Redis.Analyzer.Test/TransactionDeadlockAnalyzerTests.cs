@@ -14,9 +14,9 @@ namespace StackExchange.Redis.Analyzer.Test
         [TestMethod]
         public void Empty_NotTriggered()
         {
-            const string Test = @"";
+            const string test = @"";
 
-            VerifyCSharpDiagnostic(Test);
+            VerifyCSharpDiagnostic(test);
         }
 
         [TestMethod]

@@ -22,7 +22,9 @@ namespace StackExchange.Redis.Analyzer
         private const string Title = "Sending commands in a loop can be slow, consider using a batch overload with array of keys instead";
 
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+#pragma warning disable RS2008
             DiagnosticId,
+#pragma warning restore RS2008
             Title,
             MessageFormat,
             Category,
@@ -81,6 +83,7 @@ namespace StackExchange.Redis.Analyzer
             return false;
         }
 
+        // ReSharper disable once CognitiveComplexity
         private IMethodSymbol FindMethodWithArrayOverload(InvocationExpressionSyntax expressionSyntax, SemanticModel contextSemanticModel)
         {
             var methodSymbol = contextSemanticModel.GetSymbolInfo(expressionSyntax).Symbol as IMethodSymbol;
@@ -118,24 +121,45 @@ namespace StackExchange.Redis.Analyzer
                 .OfType<IMethodSymbol>()
                 .Where(o => o.Equals(methodSymbol, SymbolEqualityComparer.Default) == false)
                 .ToArray();
-            foreach (var parameter in parameters)
-            {
-                if (parameter.Type is IArrayTypeSymbol)
-                {
-                    continue;
-                }
 
-                foreach (var overload in overloads)
+            foreach (var overload in overloads)
+            {
+                if (IsSuitableBatchOverload(methodSymbol, overload))
                 {
-                    var matchedParameter = overload.Parameters.SingleOrDefault(p => p.Ordinal == parameter.Ordinal);
-                    if (matchedParameter != null && IsMethodIsArrayOf(matchedParameter, parameter))
-                    {
-                        return overload;
-                    }
+                    return overload;
                 }
             }
 
             return null;
+        }
+
+        private bool IsSuitableBatchOverload(IMethodSymbol sourceMethod, IMethodSymbol overload)
+        {
+            var hasArrayParameter = false;
+            foreach (var parameter in sourceMethod.Parameters)
+            {
+                var overloadParameter = overload.Parameters.SingleOrDefault(p => p.Ordinal == parameter.Ordinal);
+                if (overloadParameter == null)
+                {
+                    return false;
+                }
+
+                if (overloadParameter.Type.Equals(parameter.Type, SymbolEqualityComparer.Default))
+                {
+                    continue;
+                }
+
+                if (IsMethodIsArrayOf(overloadParameter, parameter))
+                {
+                    hasArrayParameter = true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return hasArrayParameter;
         }
 
         private bool IsMethodIsArrayOf(IParameterSymbol arrayParameter, IParameterSymbol baseParameter)
