@@ -56,6 +56,22 @@ public class SendingCommandsInLoopAnalyzerTests : DiagnosticVerifier
         VerifyCSharpDiagnostic(code);
     }
 
+    [TestMethod]
+    public void SetRemoveInForeach_NotTriggered()
+    {
+        var code = ReadTestData("SetRemoveInForeach.cs");
+
+        VerifyCSharpDiagnostic(code);
+    }
+
+    [TestMethod]
+    public void GetConstantStringInLoop_NotTriggered()
+    {
+        var code = ReadTestData("GetConstantStringInLoop.cs");
+
+        VerifyCSharpDiagnostic(code);
+    }
+
     protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
     {
         return new SendingCommandsInLoopAnalyzer();
