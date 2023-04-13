@@ -72,6 +72,14 @@ public class SendingCommandsInLoopAnalyzerTests : DiagnosticVerifier
         VerifyCSharpDiagnostic(code);
     }
 
+    [TestMethod]
+    public void KeyExistsInLoop_NotTriggered()
+    {
+        var code = ReadTestData("KeyExistsInLoop.cs");
+
+        VerifyCSharpDiagnostic(code);
+    }
+
     protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
     {
         return new SendingCommandsInLoopAnalyzer();

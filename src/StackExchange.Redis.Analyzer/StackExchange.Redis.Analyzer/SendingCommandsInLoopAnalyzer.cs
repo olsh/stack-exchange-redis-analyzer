@@ -33,6 +33,8 @@ namespace StackExchange.Redis.Analyzer
             Description,
             "https://github.com/olsh/stack-exchange-redis-analyzer#ser002");
 
+        private readonly string[] _ignoredMethods = { "KeyExists" };
+
         public override void Initialize(AnalysisContext context)
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
@@ -96,6 +98,13 @@ namespace StackExchange.Redis.Analyzer
             }
 
             if (containingNamespace.Name != "Redis" || containingNamespace.ContainingNamespace?.Name != "StackExchange")
+            {
+                return null;
+            }
+
+            // Check if method is ignored
+            if (_ignoredMethods.Contains(methodSymbol.Name)
+                || _ignoredMethods.Contains($"{methodSymbol.Name}Async"))
             {
                 return null;
             }
