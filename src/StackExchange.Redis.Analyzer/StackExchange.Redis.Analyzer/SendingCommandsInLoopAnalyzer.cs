@@ -119,7 +119,7 @@ namespace StackExchange.Redis.Analyzer
             var overloads = containingType
                 .GetMembers(methodSymbol.Name)
                 .OfType<IMethodSymbol>()
-                .Where(o => o.Equals(methodSymbol) == false)
+                .Where(o => o.Equals(methodSymbol, SymbolEqualityComparer.Default) == false)
                 .ToArray();
 
             // Get assignments inside the loop
@@ -158,7 +158,7 @@ namespace StackExchange.Redis.Analyzer
                     return false;
                 }
 
-                if (overloadParameter.Type.Equals(parameter.Type))
+                if (overloadParameter.Type.Equals(parameter.Type, SymbolEqualityComparer.Default))
                 {
                     continue;
                 }
@@ -228,7 +228,7 @@ namespace StackExchange.Redis.Analyzer
                     continue;
                 }
 
-                if (assignmentSymbol.Equals(parameterSymbol))
+                if (assignmentSymbol.Equals(parameterSymbol, SymbolEqualityComparer.Default))
                 {
                     return true;
                 }
@@ -248,7 +248,7 @@ namespace StackExchange.Redis.Analyzer
                     return false;
                 }
 
-                if (overloadParameter.Type.Equals(parameter.Type))
+                if (overloadParameter.Type.Equals(parameter.Type, SymbolEqualityComparer.Default))
                 {
                     continue;
                 }
@@ -273,7 +273,7 @@ namespace StackExchange.Redis.Analyzer
                 return false;
             }
 
-            return arrayElementType.ElementType.Equals(baseParameter.Type);
+            return arrayElementType.ElementType.Equals(baseParameter.Type, SymbolEqualityComparer.Default);
         }
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
