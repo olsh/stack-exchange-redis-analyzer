@@ -28,7 +28,7 @@
       This is the maximum supported version for SonarQube SDK
       https://github.com/SonarSource/sonarqube-roslyn-sdk#current-limitations
     -->
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.8.2" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.3.1" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

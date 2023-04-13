@@ -119,7 +119,7 @@ namespace StackExchange.Redis.Analyzer
                     return false;
                 }
 
-                if (methodSymbol.ContainingType.Equals(taskType) && BlockingTaskMethods.Contains(methodSymbol.MetadataName))
+                if (methodSymbol.ContainingType.Equals(taskType, SymbolEqualityComparer.Default) && BlockingTaskMethods.Contains(methodSymbol.MetadataName))
                 {
                     return true;
                 }
@@ -157,7 +157,7 @@ namespace StackExchange.Redis.Analyzer
             var symbolInfo = context.SemanticModel.GetSymbolInfo(memberName);
             var methodName = memberAccessExpressionSyntax.Name.ToString();
 
-            return symbolInfo.Symbol is ILocalSymbol singleSymbol && singleSymbol.Type.Equals(transactionType)
+            return symbolInfo.Symbol is ILocalSymbol singleSymbol && singleSymbol.Type.Equals(transactionType, SymbolEqualityComparer.Default)
                                                                   && methodName != "ExecuteAsync";
         }
     }
